@@ -1,4 +1,5 @@
 """This module contains a bakery algorithm implementation.
+
 This is the implementation of a mutual exclusion - bakery algorithm.
 """
 
@@ -17,6 +18,9 @@ inside: list[int] = [0] * N_THREADS
 
 # Bakery algorithm implementation
 def bakery(tid: int):
+
+    global num, inside
+
     inside[tid] = 1
     num[tid] = 1 + max(num)
     inside[tid] = 0
@@ -28,7 +32,7 @@ def bakery(tid: int):
     # Begin of the critical section
     print(tid)
     sleep(1)
-    print("Hello world, I'm only one alive now")
+    print("Hello world, I'm only one alive now: "+str(tid))
     # End of the critical section
     num[tid] = 0
 
