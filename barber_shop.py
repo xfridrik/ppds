@@ -19,16 +19,17 @@ N = 3  # size of waiting room
 
 
 class Shared(object):
+    """"Object Shared for multiple customers (threads)"""
 
     def __init__(self):
+        """"Shared class constructor"""
 
-        # TODO : Initialize patterns we need and variables
-        self.mutex = Mutex()
-        self.waiting_room = 0
-        # self.customer = Rendezvous is implemented as ?
-        # self.barber = Rendezvous is implemented as ?
-        # self.customer_done = Rendezvous is implemented as ?
-        # self.barber_done = Rendezvous is implemented as ?
+        self.mutex = Mutex()  # main mutex for shared object
+        self.waiting_room = 0  # waiting customers
+        self.customer = Mutex()  # indication for going to get new hairstyle
+        self.barber = Mutex()  # indication for going to cut hair
+        self.customer_done = Mutex()  # indication for done hairstyle and leaving
+        self.barber_done = Mutex()  # indication for done cutting and leaving
 
 
 def get_haircut(i):
