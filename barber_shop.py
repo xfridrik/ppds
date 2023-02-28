@@ -16,6 +16,9 @@ from fei.ppds import Mutex, Thread
 from time import sleep
 from random import randint
 
+C = 5 # number of customers
+N = 3 # size of waiting room
+
 
 class Shared(object):
 
@@ -85,8 +88,6 @@ def main():
 
     for t in customers + [hair_stylist]:
         t.join()
-
-# TODO: Global variables C = 5 numOfCustomers N = 3 sizeOfWaitingRoom
 
 
 if __name__ == "__main__":
