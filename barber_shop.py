@@ -10,7 +10,7 @@ __email__ = "mariansebena@stuba.sk, xvavro@stuba.sk, xfridrik@stuba.sk"
 __license__ = "MIT"
 
 
-from fei.ppds import Mutex, Thread
+from fei.ppds import Mutex, Thread, Semaphore
 from time import sleep
 from random import randint
 
@@ -26,10 +26,10 @@ class Shared(object):
 
         self.mutex = Mutex()  # main mutex for shared object
         self.waiting_room = 0  # waiting customers
-        self.customer = Mutex()  # indication for going to get new hairstyle
-        self.barber = Mutex()  # indication for going to cut hair
-        self.customer_done = Mutex()  # indication for done hairstyle and leaving
-        self.barber_done = Mutex()  # indication for done cutting and leaving
+        self.customer = Semaphore(0)  # indication for going to get new hairstyle
+        self.barber = Semaphore(0)  # indication for going to cut hair
+        self.customer_done = Semaphore(0)  # indication for done hairstyle and leaving
+        self.barber_done = Semaphore(0)  # indication for done cutting and leaving
 
 
 def get_haircut(i):
