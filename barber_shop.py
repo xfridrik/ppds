@@ -34,26 +34,26 @@ class Shared(object):
 
 def get_haircut(i):
     # TODO: Simulate time and print info when customer gets haircut
-    print(f"Customer[{i}]: I'm getting a new haircut!")
+    print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: I'm getting a new haircut!")
     sleep(0.1)
 
 
 def cut_hair():
     # TODO: Simulate time and print info when barber cuts customer's hair
-    print(f"Barber is cutting hair...")
+    print(f"\x1b[6;30;43m    Barber   \x1b[0m: is cutting hair...")
     sleep(0.1)
 
 
 def balk(i):
     # TODO: Represents situation when waiting room is full and print info
-    print(f"Customer[{i}]: There is no space in waiting room, I'm leaving!")
+    print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: There is no space in waiting room, I'm leaving!")
     sleep(0.3)
 
 
 def growing_hair(i):
     # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is
     #  sleeping for some time
-    print(f"Customer[{i}]: I don't need a new haircut, so I wait.")
+    print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: I've got new haircut, so I wait.")
     sleep(1)
 
 
@@ -71,7 +71,7 @@ def customer(i, shared):
         else:
             shared.waiting_room += 1
             shared.mutex.unlock()
-            print(f"WaitingRoom: arrived Customer[{i}]")
+            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: arrived \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m")
 
             shared.barber.signal()
             shared.customer.wait()
@@ -81,7 +81,7 @@ def customer(i, shared):
             shared.customer_done.signal()
             shared.barber_done.wait()
 
-            print(f"WaitingRoom: left Customer[{i}]")
+            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: left \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m")
             #  leaving waiting room
             shared.mutex.lock()
             shared.waiting_room -= 1
