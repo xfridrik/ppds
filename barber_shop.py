@@ -1,9 +1,7 @@
 """
-Program represents different sequences of using mutex
+This module contains a sleeping barber problem implementation.
 
-University: STU Slovak Technical University in Bratislava
-Faculty: FEI Faculty of Electrical Engineering and Information Technology
-Year: 2023
+This is the implementation of a sleeping barber problem and simulation with possible customer overrun.
 """
 
 
@@ -16,8 +14,8 @@ from fei.ppds import Mutex, Thread
 from time import sleep
 from random import randint
 
-C = 5 # number of customers
-N = 3 # size of waiting room
+C = 5  # number of customers
+N = 3  # size of waiting room
 
 
 class Shared(object):
@@ -35,20 +33,25 @@ class Shared(object):
 
 def get_haircut(i):
     # TODO: Simulate time and print info when customer gets haircut
+    print(f"Customer[{i}]: I'm getting a new haircut!")
+    sleep(2)
 
 
 def cut_hair():
     # TODO: Simulate time and print info when barber cuts customer's hair
+    print(f"Barber is cutting hair...")
+    sleep(2)
 
 
 def balk(i):
     # TODO: Represents situation when waiting room is full and print info
-
+    print(f"Customer[{i}]: There is no space in waiting room, I'm leaving!")
 
 
 def growing_hair(i):
-    # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is sleeping for some time
-
+    # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is
+    #  sleeping for some time
+    print(f"Customer[{i}]: I don't need a new haircut, so I wait.")
 
 
 def customer(i, shared):
