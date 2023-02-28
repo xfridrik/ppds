@@ -1,2 +1,2 @@
-# ppds-23
-Repository for PPDS course, FEI STU 2023
+# PPDS assigment 2 - Barber shop
+
