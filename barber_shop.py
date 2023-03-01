@@ -6,7 +6,7 @@ This is the implementation of a sleeping barber problem and simulation with poss
 
 
 __authors__ = "Marián Šebeňa, Martin Fridrik"
-__email__ = "mariansebena@stuba.sk, xvavro@stuba.sk, xfridrik@stuba.sk"
+__email__ = "mariansebena@stuba.sk, xfridrik@stuba.sk"
 __license__ = "MIT"
 
 
@@ -20,20 +20,39 @@ COL = False  # colourful prints
 
 
 class Shared(object):
-    """"Object Shared for multiple customers (threads)"""
+    """
+    Object Shared for multiple customers (threads)
+
+    Attributes:
+    mutex           -- main Mutex for shared object
+    waiting_room    -- count of waiting customers
+    customer        -- Semaphore for indication of going to get new hairstyle
+    barber          -- Semaphore for indication of going to cut hair
+    customer_done   -- Semaphore for indication of done hairstyle and leaving
+    barber_done     -- Semaphore for indication of done cutting
+    """
 
     def __init__(self):
-        """"Shared class constructor"""
+        """"
+        Shared class constructor
+        """
 
-        self.mutex = Mutex()  # main mutex for shared object
-        self.waiting_room = 0  # waiting customers
-        self.customer = Semaphore(0)  # indication for going to get new hairstyle
-        self.barber = Semaphore(0)  # indication for going to cut hair
-        self.customer_done = Semaphore(0)  # indication for done hairstyle and leaving
-        self.barber_done = Semaphore(0)  # indication for done cutting and leaving
+        self.mutex = Mutex()
+        self.waiting_room = 0
+        self.customer = Semaphore(0)
+        self.barber = Semaphore(0)
+        self.customer_done = Semaphore(0)
+        self.barber_done = Semaphore(0)
 
 
 def get_haircut(i):
+    """
+    Simulates a customer getting a haircut.
+
+    Arguments:
+    i -- Identifier of the customer.
+    """
+
     if COL:
         print(f"\x1b[1;{31 + i};40m Customer[{i}] \x1b[0m: I'm getting a new haircut!")
     else:
@@ -42,6 +61,10 @@ def get_haircut(i):
 
 
 def cut_hair():
+    """
+    Simulates a barber cutting hair.
+    """
+
     if COL:
         print(f"\x1b[6;30;43m    Barber   \x1b[0m: is cutting hair...")
     else:
@@ -51,6 +74,13 @@ def cut_hair():
 
 
 def balk(i):
+    """
+    Simulates a customer leaving and waiting due to full waiting room.
+
+    Arguments:
+    i -- Identifier of the customer.
+    """
+
     if COL:
         print(f"\x1b[1;{31 + i};40m Customer[{i}] \x1b[0m: There is no space in waiting room, I'm leaving!")
     else:
@@ -59,6 +89,13 @@ def balk(i):
 
 
 def growing_hair(i):
+    """
+    Simulates a customer growing hair after getting a haircut.
+
+    Arguments:
+    i -- Identifier of the customer.
+    """
+
     if COL:
         print(f"\x1b[1;{31 + i};40m Customer[{i}] \x1b[0m: I've got new haircut, so I wait.")
     else:
@@ -67,6 +104,15 @@ def growing_hair(i):
 
 
 def waiting_room_update(i, count, action):
+    """
+    Prints action and status of waiting room.
+
+    Arguments:
+    i       -- Identifier of the customer.
+    count   -- Count of customers in waiting room.
+    action  -- Customer's action ("arrived"/"left")
+    """
+
     if COL:
         print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: "
               f"{action} \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m ({count})")
@@ -75,7 +121,13 @@ def waiting_room_update(i, count, action):
 
 
 def customer(i, shared):
-    """"Function for threads - "customers" """
+    """
+    Function for threads - "customers" with simulation of waiting room and getting haircut
+
+    Arguments:
+    i       -- Identifier of the customer.
+    shared  -- Object shared by threads
+    """
 
     while True:
         shared.mutex.lock()
@@ -83,19 +135,22 @@ def customer(i, shared):
             shared.mutex.unlock()
             balk(i)
         else:
+            # enter waiting room
             shared.waiting_room += 1
             waiting_room_update(i, shared.waiting_room, "arrived")
             shared.mutex.unlock()
 
+            # rendezvous enter
             shared.barber.signal()  # trying to wake up the barber
             shared.customer.wait()  # waiting for barber to cut me
 
             get_haircut(i)
 
+            # rendezvous leave
             shared.barber_done.wait()  # waiting for barber getting work done
             shared.customer_done.signal()  # customer is done, barber is free for another one
 
-            #  leaving waiting room
+            # leaving waiting room
             shared.mutex.lock()
             shared.waiting_room -= 1
             waiting_room_update(i, shared.waiting_room, "left")
@@ -105,14 +160,21 @@ def customer(i, shared):
 
 
 def barber(shared):
-    """"Function for thread - "barber" """
+    """
+    Function for thread - "barber" with calling simulation of cutting hair
+
+    Arguments:
+    shared -- Object shared by threads
+    """
 
     while True:
+        # rendezvous enter
         shared.customer.signal()  # barber is free
         shared.barber.wait()  # barber is sleeping
 
         cut_hair()
 
+        # rendezvous leave
         shared.barber_done.signal()  # barber completed work
         shared.customer_done.wait()  # waiting for customer to leave
 
