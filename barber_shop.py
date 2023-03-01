@@ -16,6 +16,7 @@ from random import randint
 
 C = 5  # number of customers
 N = 3  # size of waiting room
+COL = False  # colourful prints
 
 
 class Shared(object):
@@ -33,23 +34,44 @@ class Shared(object):
 
 
 def get_haircut(i):
-    print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: I'm getting a new haircut!")
+    if COL:
+        print(f"\x1b[1;{31 + i};40m Customer[{i}] \x1b[0m: I'm getting a new haircut!")
+    else:
+        print(f"Customer[{i}]: I'm getting a new haircut!")
     sleep(0.15)
 
 
 def cut_hair():
-    print(f"\x1b[6;30;43m    Barber   \x1b[0m: is cutting hair...")
+    if COL:
+        print(f"\x1b[6;30;43m    Barber   \x1b[0m: is cutting hair...")
+    else:
+        print(f"Barber: is cutting hair...")
+
     sleep(0.1)
 
 
 def balk(i):
-    print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: There is no space in waiting room, I'm leaving!")
+    if COL:
+        print(f"\x1b[1;{31 + i};40m Customer[{i}] \x1b[0m: There is no space in waiting room, I'm leaving!")
+    else:
+        print(f"Customer[{i}]: There is no space in waiting room, I'm leaving!")
     sleep(0.2)
 
 
 def growing_hair(i):
-    print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: I've got new haircut, so I wait.")
+    if COL:
+        print(f"\x1b[1;{31 + i};40m Customer[{i}] \x1b[0m: I've got new haircut, so I wait.")
+    else:
+        print(f"Customer[{i}]: I've got new haircut, so I wait.")
     sleep(1)
+
+
+def waiting_room_update(i, count, action):
+    if COL:
+        print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: "
+              f"{action} \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m ({count})")
+    else:
+        print(f"WaitingRoom: {action} Customer[{i}] ({count})")
 
 
 def customer(i, shared):
@@ -62,8 +84,7 @@ def customer(i, shared):
             balk(i)
         else:
             shared.waiting_room += 1
-            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: "
-                  f"arrived \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m ({shared.waiting_room})")
+            waiting_room_update(i, shared.waiting_room, "arrived")
             shared.mutex.unlock()
 
             shared.barber.signal()  # trying to wake up the barber
@@ -77,8 +98,7 @@ def customer(i, shared):
             #  leaving waiting room
             shared.mutex.lock()
             shared.waiting_room -= 1
-            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: "
-                  f"left \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m ({shared.waiting_room})")
+            waiting_room_update(i, shared.waiting_room, "left")
             shared.mutex.unlock()
 
             growing_hair(i)
