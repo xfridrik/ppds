@@ -33,76 +33,68 @@ class Shared(object):
 
 
 def get_haircut(i):
-    # TODO: Simulate time and print info when customer gets haircut
     print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: I'm getting a new haircut!")
-    sleep(0.1)
+    sleep(0.15)
 
 
 def cut_hair():
-    # TODO: Simulate time and print info when barber cuts customer's hair
     print(f"\x1b[6;30;43m    Barber   \x1b[0m: is cutting hair...")
     sleep(0.1)
 
 
 def balk(i):
-    # TODO: Represents situation when waiting room is full and print info
     print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: There is no space in waiting room, I'm leaving!")
-    sleep(0.3)
+    sleep(0.2)
 
 
 def growing_hair(i):
-    # TODO: Represents situation when customer wait after getting haircut. So hair is growing and customer is
-    #  sleeping for some time
     print(f"\x1b[1;{31+i};40m Customer[{i}] \x1b[0m: I've got new haircut, so I wait.")
     sleep(1)
 
 
 def customer(i, shared):
-    # TODO: Function represents customers behaviour. Customer come to waiting if room is full sleep.
-    # TODO: Wake up barber and waits for invitation from barber. Then gets new haircut.
-    # TODO: After it both wait to complete their work. At the end waits to hair grow again
+    """"Function for threads - "customers" """
 
     while True:
-        # TODO: Access to waiting room. Could customer enter or must wait? Be careful about counter integrity :)
         shared.mutex.lock()
-        if shared.waiting_room == N:
+        if shared.waiting_room == N:  # waiting room is full - leaving and wait for another try
             shared.mutex.unlock()
             balk(i)
         else:
             shared.waiting_room += 1
+            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: "
+                  f"arrived \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m ({shared.waiting_room})")
             shared.mutex.unlock()
-            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: arrived \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m")
 
-            shared.barber.signal()
-            shared.customer.wait()
+            shared.barber.signal()  # trying to wake up the barber
+            shared.customer.wait()  # waiting for barber to cut me
 
             get_haircut(i)
 
-            shared.customer_done.signal()
-            shared.barber_done.wait()
+            shared.barber_done.wait()  # waiting for barber getting work done
+            shared.customer_done.signal()  # customer is done, barber is free for another one
 
-            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: left \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m")
             #  leaving waiting room
             shared.mutex.lock()
             shared.waiting_room -= 1
+            print(f"\x1b[5;30;42m WaitingRoom \x1b[0m: "
+                  f"left \x1b[1;{31 + i};40m Customer[{i}] \x1b[0m ({shared.waiting_room})")
             shared.mutex.unlock()
 
             growing_hair(i)
 
 
 def barber(shared):
-    # TODO: Function barber represents barber. Barber is sleeping.
-    # TODO: When customer come to get new hair wakes up barber.
-    # TODO: Barber cuts customer hair and both wait to complete their work.
+    """"Function for thread - "barber" """
 
     while True:
-        shared.customer.signal()
-        shared.barber.wait()
+        shared.customer.signal()  # barber is free
+        shared.barber.wait()  # barber is sleeping
 
         cut_hair()
 
-        shared.barber_done.signal()
-        shared.customer_done.wait()
+        shared.barber_done.signal()  # barber completed work
+        shared.customer_done.wait()  # waiting for customer to leave
 
 
 def main():
