@@ -12,11 +12,10 @@ __license__ = "MIT"
 
 from fei.ppds import Mutex, Thread, Semaphore, print
 from time import sleep
-from random import randint
 
 C = 5  # number of customers
 N = 3  # size of waiting room
-COL = False  # colourful prints
+COL = True  # colourful prints
 
 
 class Shared(object):
@@ -180,6 +179,10 @@ def barber(shared):
 
 
 def main():
+    """
+    Creates Shared object and threads for barber and C customers
+    """
+
     shared = Shared()
     customers = []
 
