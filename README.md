@@ -73,6 +73,9 @@ shared.customer_done.signal()
 ### Main
 In _main_ function we create shared object and threads: one for _Barber_ and `C` for _Customer_ threads.
 
+### Colourful prints
+There was added another global variable `COL` which when is set to True, it is used to print colored prints for better clarity. However, some terminals may not support colored prints and these prints may be corrupted, so make sure your terminal is supported before setting up.
+
 ## Verification
 To ensure that the requirements in this assignment are met and the integrity has not been compromised, we used Mutex for locking shared resources while accessing them by threads.
 There is always only one customer getting new haircut and this is the only time, when thread is blocking other customer threads. This is ensured by implementation of Rendezvouses on entering critical section (customer's hair will be cut) and on leaving critical section (customer and barber finished required work).
