@@ -74,8 +74,12 @@ shared.customer_done.signal()
 In _main_ function we create shared object and threads: one for _Barber_ and `C` for _Customer_ threads.
 
 ## Verification
-
-### Console output
+To ensure that the requirements in this assignment are met and the integrity has not been compromised, we used Mutex for locking shared resources while accessing them by threads.
+There is always only one customer getting new haircut and this is the only time, when thread is blocking other customer threads. This is ensured by implementation of Rendezvouses on entering critical section (customer's hair will be cut) and on leaving critical section (customer and barber finished required work).
+Rendezvouses were implemented using Semaphores as described above.
+### Sample console output
+When reviewing console output, there is also no requirements violation, which may indicate incorrect implementation.
+![img.png](img.png)
 
 ## How to run script
 1. Clone repository
