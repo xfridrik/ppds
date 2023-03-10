@@ -35,6 +35,30 @@ This function repeats `NUM_RUNS` think-eat process. At first the function _think
 After the philosopher picks up both forks, function _eat_ is called, to simulate eating process for philosopher. Then both forks are unlocked.
 
 ## Comparison
+We are now comparing 2 _dining philosophers_ problem solutions - using waiter and using right/left-handed philosophers (our implementation).
+
+In _Waiter_ solution there is used Semaphore (with lower value as number of philosophers), this ensures that all philosophers can't take up fork at the same time and last philosopher must wait before picking up process.
+### Blocking
+Since the case where the philosophers are more blocked while eating increases the overall running time of the program, we checked this value for both solutions and the same parameters - 5 philosophers and 10 cycles of eating and thinking.
+With **Right/left-handed** solution we get **13 seconds** total time elapsed and with **Waiter** solution it was only **8 seconds**.
+
+### Starvation
+To check whether the philosopher ate often enough and is not blocked for too long, we again use an experiment in which we measure how long it took one thread to execute one eat-think process.
+Getting forks takes 0.5s, eating 0.1s and thinking 0.1s, we added some time (0.3s) and check, if philosophers can access resource (eat) always under this time.
+
+#### Waiter solution
+When running code with waiter solution with 5 philosophers and 10 cycles for every philosopher thread (total 50 eat-think runs), there were two runs crossing the selected one-second threshold. One with value 1.06s , which is just above our threshold and second with higher value - 1.36s.
+
+#### Right/left-handed solution
+We also run this test with same parameters for our implementation. We got a worse result, with up to 20 runs exceeding our 1-second limit. The worst result was 1.48s, which is worse than the worst result from the first test. Often repeated values were about 1.25 or 1.44 seconds.
+
+### Comparison table
+
+| Solution              | Possible deadlock | Starvation                 | Elapsed time (s)      |
+|-----------------------|-------------------|----------------------------|-----------------------|
+| **No solution**       | Yes               | No / Fatal (when deadlock) | 7 / ∞ (when deadlock) |
+| **Left/right-handed** | No                | Higher                     | 13                    |
+| **Waiter**            | No                | Lower                      | 8                     |
 
 ## How to run script
 1. Clone repository
