@@ -17,10 +17,31 @@ K: int = 3  # number of cooks
 
 class Shared:
     """Represent shared data for all threads.
+
+    Attributes:
+    savage_mutex    -- Mutex for accessing pot while eating
+    cook_mutex      -- Mutex for accessing pot while adding food
+    pot             -- number of remaining portions in pot
+    dining_room     -- number of savages in dining room
+    turnstile1      -- turnstile for barrier when entering dining room
+    turnstile2      -- turnstile for barrier when leaving dining room
+    pot_empty       -- Event for empty pot signalisation
+    pot_full        -- Event for full pot signalisation
     """
 
     def __init__(self):
         """Shared class constructor."""
+        self.savage_mutex = Mutex()
+        self.cook_mutex = Mutex()
+        self.pot = 0
+
+        self.dining_room = 0
+        self.turnstile1 = Semaphore(0)
+        self.turnstile2 = Semaphore(0)
+
+        self.pot_empty = Event()
+        self.pot_full = Event()
+        self.pot_empty.signal()  # pot is empty at begin
 
 
 def eat_from_pot(i, shared):
