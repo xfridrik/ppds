@@ -53,12 +53,29 @@ def add_to_pot(i, shared):
 
 def savage(i, shared):
     while True:
-        print(f"savage {i}")
+        shared.savage_mutex.lock()
+        shared.dining_room += 1
+        if shared.dining_room == D:
+            print(f'savage {i} filled dining room and unlocked barrier')
+            shared.turnstile1.signal(D)
+        shared.savage_mutex.unlock()
+        shared.turnstile1.wait()
+
+        sleep(1 / 5)
+        eat_from_pot(i, shared)
+
+        shared.savage_mutex.lock()
+        shared.dining_room -= 1
+        if shared.dining_room == 0:
+            shared.turnstile2.signal(D)
+        shared.savage_mutex.unlock()
+        shared.turnstile2.wait()
 
 
 def cook(i, shared):
     while True:
-        print(f"cook {i}")
+        sleep(1/5)
+        add_to_pot(i, shared)
 
 
 def main():
