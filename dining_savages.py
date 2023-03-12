@@ -45,6 +45,14 @@ class Shared:
 
 
 def eat_from_pot(i, shared):
+    """
+    Simulation of getting one food portion from the pot by one savage
+
+    Arguments:
+    i       -- Identifier of the cook.
+    shared  -- Object shared by threads
+    """
+
     shared.savage_mutex.lock()
     shared.pot_full.wait()  # wait until pot full
 
@@ -58,6 +66,14 @@ def eat_from_pot(i, shared):
 
 
 def add_to_pot(i, shared):
+    """
+    Simulation of adding one food portion into the pot by one cook
+
+    Arguments:
+    i       -- Identifier of the cook.
+    shared  -- Object shared by threads
+    """
+
     shared.cook_mutex.lock()
     shared.pot_empty.wait()  # wait until pot empty
 
@@ -71,12 +87,20 @@ def add_to_pot(i, shared):
 
 
 def savage(i, shared):
+    """
+    Function for threads - "savage" with simulation of waiting for each other and eating from pot
+
+    Arguments:
+    i       -- Identifier of the savage.
+    shared  -- Object shared by threads
+    """
+
     while True:
         shared.savage_mutex.lock()
         shared.dining_room += 1
-        if shared.dining_room == D:
+        if shared.dining_room == D:  # check if everyone is in dining room
             print(f'savage {i} filled dining room and unlocked barrier')
-            shared.turnstile1.signal(D)
+            shared.turnstile1.signal(D)  # signal to every savage that they can go eat
         shared.savage_mutex.unlock()
         shared.turnstile1.wait()
 
@@ -85,20 +109,28 @@ def savage(i, shared):
 
         shared.savage_mutex.lock()
         shared.dining_room -= 1
-        if shared.dining_room == 0:
-            shared.turnstile2.signal(D)
+        if shared.dining_room == 0:  # wait while every savage is fed - nobody is in dining room
+            shared.turnstile2.signal(D)  # signal that savages can go into dining room again
         shared.savage_mutex.unlock()
         shared.turnstile2.wait()
 
 
 def cook(i, shared):
+    """
+    Function for threads - "cooks" with simulation of adding food into pot
+
+    Arguments:
+    i       -- Identifier of the cook.
+    shared  -- Object shared by threads
+    """
+
     while True:
         sleep(1/5)
         add_to_pot(i, shared)
 
 
 def main():
-    """Run main."""
+    """Create threads for savages and cooks with one Shared object."""
     shared: Shared = Shared()
 
     savages: list[Thread] = [
