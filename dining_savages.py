@@ -58,7 +58,16 @@ def eat_from_pot(i, shared):
 
 
 def add_to_pot(i, shared):
-    print(f"cook {i} adding")
+    shared.cook_mutex.lock()
+    shared.pot_empty.wait()  # wait until pot empty
+
+    shared.pot += 1
+    print(f"cook [{i}] added portion (remaining portions: {shared.pot})")
+    if shared.pot >= H:
+        print(f"cook [{i}] Pot is filled")
+        shared.pot_empty.clear()  # reset empty - don't need to cook
+        shared.pot_full.signal()  # signal full - savages can eat
+    shared.cook_mutex.unlock()
 
 
 def savage(i, shared):
