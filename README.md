@@ -44,24 +44,32 @@ if shared.dining_room == D:
 shared.savage_mutex.unlock()
 shared.turnstile1.wait()
 ```
-To ensure integrity, before incrementing value in dining rook to simulate that savage is ready to eat we first lock `savage_mutex`. Then value can be safely incremented and checked, if current savage is last one. If it is, he signal to all savages, that they can go eat and unlock Mutex. Otherwise, the savage is after unlocking mutex waiting for this signal from another savage (last line in snippet).
+To ensure integrity, before incrementing value in dining room to simulate that savage is ready to eat we first lock `savage_mutex`. Then value can be safely incremented and checked, if current savage is last one. If it is, he signal to all savages, that they can go eat and unlock Mutex. Otherwise, the savage is after unlocking mutex waiting for this signal from another savage (last line in snippet).
 
-Savages are now in kitchen and can access pot where we are changing value, so we need to lock `savage_mutex` again to keep integrity. Then we check and wait, when cooks are currently cooking meal  - `shared.pot_full.wait()`. If they are not cooking, function `eat_from_pot` is called, where is decremented value in `pot` and simulated getting portion by sleeping for 0.2 seconds. When this was last portion and pot is empty, before unlocking Mutex, savage clear **Event** `pot_full` for all savages, so they can't eat and must wait and signalize `pot_empty` to cook new food:
+Then we lock mutex again and check pot value. When the pot is empty (0), savage clear **Event** `pot_full` for savages, so they can't eat and must wait and signalize `pot_empty` to cook new food:
 ```
 shared.pot_full.clear()
 shared.pot_empty.signal()
 ```
+
+Then we check and wait, when cooks are currently cooking meal  - `shared.pot_full.wait()`. If they are not cooking, function `eat_from_pot` is called, where is decremented value in `pot` and simulated getting portion by sleeping for 0.2 seconds.
 
 After this we use another **barrier** to wait all savages after eating and leaving _together_. In this way we get a **reusable barrier** for savage threads.
 
 ### Function _cook_
 Function _cook_ is simulation of cook, cooking food in infinite loop.
 
-In function cook we call `cook_portion` function at begin, which contains only _sleep_ to simulate food cooking. Then we update `pot` value, so we are using mutex to ensure integrity. After locking mutex, function is waiting for `pot_empty` signal, which indicate that pot is empty and cooks can add food into it - by calling function `add_to_pot` which is incrementing pot value and simulating adding portion by sleeping for 0.1 seconds. After cook add portion into pot, he check, if pot is full. When it is full, thread clear `pot_empty` event - cooks are no more adding food into pot. Then send `pot_full` signal to savages, that pot is full and they can eat again.
+In function cook we call `cook_portion` function at begin, which contains only _sleep_ to simulate food cooking. We want to modify `pot` value, so we are using mutex to ensure integrity.
+
+After locking mutex, we check, if pot is full. When it is full, thread clear `pot_empty` event - cooks are no more adding food into pot. Then send `pot_full` signal to savages, that pot is full and they can eat again.
 ```
 shared.pot_empty.clear()
 shared.pot_full.signal()
 ```
+
+
+Then function is waiting for `pot_empty` signal, which indicate that pot is empty and cooks can add food into it - by calling function `add_to_pot` which is incrementing pot value and simulating adding portion by sleeping for 0.1 seconds.
+
 
 
 ## Implementation review
@@ -70,6 +78,6 @@ We have also added prints for the important thread activities and simulated by r
 ### Sample console output
 ![img.png](img.png)
 
-First line indicate, that all savages are ready to eat, but pot is empty first, so they must wait until cooks fill pot. Cooks are then filling pot one by one and last cook signalize to cooks that they can stop adding food and to savages, that they can eat. The 4 savages eat all the portions and the last one of them signals it. Cooks add portions and fill pot again and then can eat last one savage while others are waiting. When every savage is done eating, they can go to the next round.
+First line indicate, that all savages are ready to eat, but pot is empty first, so they must wait until cooks fill pot. Cooks are then filling pot one by one and last cook signalize to cooks that pot is already full, and they can stop adding food and to savages signalizes, that they can eat. The 4 savages eat all the portions and the next savage signals that pot is empty. Cooks add portions and fill pot again and then can eat last one savage while others are waiting. When every savage is done eating, they can go to the next round.
 
 [^1]: https://www.eiffel.org/doc/solutions/Dining_savages
