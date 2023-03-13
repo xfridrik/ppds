@@ -53,16 +53,9 @@ def eat_from_pot(i, shared):
     shared  -- Object shared by threads
     """
 
-    shared.savage_mutex.lock()
-    shared.pot_full.wait()  # wait until pot full
-
+    sleep(0.2)
     shared.pot -= 1
     print(f"savage [{i}] is eating (remaining portions: {shared.pot})")
-    if shared.pot == 0:
-        print(f"savage [{i}] There is no portion in pot")
-        shared.pot_full.clear()  # reset pot - cannot eat
-        shared.pot_empty.signal()  # signal to cooks that pot is empty
-    shared.savage_mutex.unlock()
 
 
 def add_to_pot(i, shared):
@@ -74,16 +67,17 @@ def add_to_pot(i, shared):
     shared  -- Object shared by threads
     """
 
-    shared.cook_mutex.lock()
-    shared.pot_empty.wait()  # wait until pot empty
-
+    sleep(0.1)
     shared.pot += 1
     print(f"cook [{i}] added portion (remaining portions: {shared.pot})")
-    if shared.pot >= H:
-        print(f"cook [{i}] Pot is filled")
-        shared.pot_empty.clear()  # reset empty - don't need to cook
-        shared.pot_full.signal()  # signal full - savages can eat
-    shared.cook_mutex.unlock()
+
+
+def cook_portion():
+    """
+    Simulation of cooking food portion by cook
+    """
+
+    sleep(0.2)
 
 
 def savage(i, shared):
@@ -99,13 +93,21 @@ def savage(i, shared):
         shared.savage_mutex.lock()
         shared.dining_room += 1
         if shared.dining_room == D:  # check if everyone is in dining room
-            print(f'savage {i} filled dining room and unlocked barrier')
+            print(f'savage [{i}] filled dining room. Every savage can go eat!')
             shared.turnstile1.signal(D)  # signal to every savage that they can go eat
         shared.savage_mutex.unlock()
         shared.turnstile1.wait()
 
-        sleep(1 / 5)
+        shared.savage_mutex.lock()
+        shared.pot_full.wait()  # wait until pot is filled
+
         eat_from_pot(i, shared)
+
+        if shared.pot == 0:
+            print(f"savage [{i}] There is no portion in pot!")
+            shared.pot_full.clear()  # reset pot - cannot eat
+            shared.pot_empty.signal()  # signal to cooks that pot is empty
+        shared.savage_mutex.unlock()
 
         shared.savage_mutex.lock()
         shared.dining_room -= 1
@@ -125,8 +127,18 @@ def cook(i, shared):
     """
 
     while True:
-        sleep(1/5)
+        cook_portion()
+
+        shared.cook_mutex.lock()
+        shared.pot_empty.wait()  # wait until pot empty
+
         add_to_pot(i, shared)
+
+        if shared.pot >= H:
+            print(f"cook [{i}] Pot is filled!")
+            shared.pot_empty.clear()  # reset empty - don't need to cook
+            shared.pot_full.signal()  # signal full - savages can eat
+        shared.cook_mutex.unlock()
 
 
 def main():
