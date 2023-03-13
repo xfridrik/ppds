@@ -3,6 +3,8 @@ At this assignment we deal dining savages problem.
 
 
 ## Dining savages problem
+_Dining savages_ problem is analogy based on savages who share one pot. The pot contains a certain number of portions of food and savages can take from it as long as it is not empty.
+When the pot is empty, the savage must tell the cook(s) to fill it up again so that the savages can eat again until there is food.[^1]
 
 ## Our implementation requirements
 - The savages begin to dine all together. They start eating when the last one arrives.
@@ -18,3 +20,6 @@ At this assignment we deal dining savages problem.
 ## Important fragments in implementation
 
 ## Implementation verification
+
+
+[^1]: https://www.eiffel.org/doc/solutions/Dining_savages
