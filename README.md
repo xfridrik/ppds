@@ -81,4 +81,24 @@ We have also added prints for the important thread activities and simulated by r
 
 First line indicate, that all savages are ready to eat, but pot is empty first, so they must wait until cooks fill pot. Cooks are then filling pot one by one and last cook signalize to cooks that pot is already full, and they can stop adding food and to savages signalizes, that they can get portion and eat. The 4 savages get and eat all the portions and the next savage signals that pot is empty. Cooks add portions and fill pot again and then can get portion last one savage while others are waiting. When every savage is done eating, they can go to the next round.
 
+## How to run script
+1. Clone repository
+   ```sh
+   git clone repository_url
+   ```
+2. Install package `fei.ppds` using pip:
+   ```sh
+   py -3 -m pip install --upgrade fei.ppds
+   ```
+   or for Linux:
+   ```sh
+   pip3 install --upgrade fei.ppds
+   ```
+3. Run script using Python interpreter (ver. 3.10)
+
+---
+Martin Fridrik, PPDS FEI STUBA
+2023
+---
+
 [^1]: https://www.eiffel.org/doc/solutions/Dining_savages
