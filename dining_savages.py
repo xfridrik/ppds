@@ -55,7 +55,7 @@ def get_from_pot(i, shared):
     shared  -- Object shared by threads
     """
 
-    sleep(0.2)
+    sleep(0.1)
     shared.pot -= 1
     print(f"savage [{i}] got 1 portion (remaining portions: {shared.pot})")
 
