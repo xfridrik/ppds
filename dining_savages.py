@@ -21,6 +21,7 @@ class Shared:
     Attributes:
     savage_mutex    -- Mutex for accessing pot while eating
     cook_mutex      -- Mutex for accessing pot while adding food
+    barrier_mutex   -- Mutex for accessing variable in barrier
     pot             -- number of remaining portions in pot
     dining_room     -- number of savages in dining room
     turnstile1      -- turnstile for barrier when entering dining room
@@ -33,6 +34,7 @@ class Shared:
         """Shared class constructor."""
         self.savage_mutex = Mutex()
         self.cook_mutex = Mutex()
+        self.barrier_mutex = Mutex()
         self.pot = 0
 
         self.dining_room = 0
@@ -44,7 +46,7 @@ class Shared:
         self.pot_empty.signal()  # pot is empty at begin
 
 
-def eat_from_pot(i, shared):
+def get_from_pot(i, shared):
     """
     Simulation of getting one food portion from the pot by one savage
 
@@ -55,7 +57,19 @@ def eat_from_pot(i, shared):
 
     sleep(0.2)
     shared.pot -= 1
-    print(f"savage [{i}] is eating (remaining portions: {shared.pot})")
+    print(f"savage [{i}] got 1 portion (remaining portions: {shared.pot})")
+
+
+def eat_portion(i):
+    """
+    Simulation of eating food portion by savage
+
+    Arguments:
+    i       -- Identifier of the savage.
+    """
+
+    print(f"savage [{i}] is eating.")
+    sleep(0.2)
 
 
 def add_to_pot(i, shared):
@@ -90,12 +104,12 @@ def savage(i, shared):
     """
 
     while True:
-        shared.savage_mutex.lock()
+        shared.barrier_mutex.lock()
         shared.dining_room += 1
         if shared.dining_room == D:  # check if everyone is in dining room
             print(f'savage [{i}] filled dining room! Savages are together.')
             shared.turnstile1.signal(D)  # signal to every savage that they can go eat
-        shared.savage_mutex.unlock()
+        shared.barrier_mutex.unlock()
         shared.turnstile1.wait()
 
         shared.savage_mutex.lock()
@@ -107,12 +121,16 @@ def savage(i, shared):
 
         shared.pot_full.wait()  # wait until pot is filled
 
-        eat_from_pot(i, shared)
+        get_from_pot(i, shared)
 
+        shared.savage_mutex.unlock()
+        eat_portion(i)
+
+        shared.barrier_mutex.lock()
         shared.dining_room -= 1
         if shared.dining_room == 0:  # wait while every savage is fed - nobody is in dining room
             shared.turnstile2.signal(D)  # signal that savages can go into dining room again
-        shared.savage_mutex.unlock()
+        shared.barrier_mutex.unlock()
         shared.turnstile2.wait()
 
 
