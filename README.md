@@ -90,7 +90,10 @@ Grayscaled images are saved in `gray_imgs` directory and `cpu` or `gpu` subdirec
 
 We can see that for smaller images there is little difference between the CPU and GPU however the larger the images we have, the difference increases significantly.
 
+**Tested with CUDA device**: _GeForce GTX 1650 Ti_
+
 **Dataset images source**: pixabay.com
+
 ## How to run script
 1. Clone repository
    ```sh
