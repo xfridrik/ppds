@@ -99,7 +99,7 @@ We can see that for smaller images there is little difference between the CPU an
 2. Install required packages (matplotlib, numba, numpy)
 3. Set up CUDA for GPU or use simulation:
    ```sh
-   set NUMBA ENABLE CUDASIM=1
+   set NUMBA_ENABLE_CUDASIM=1
    ```
 4. Run script using Python interpreter (ver. 3.10)
 
