@@ -12,6 +12,9 @@ In our code there are 2 functions to transform image into grayscale:
 To transform image from RGB into grayscale we used following formula:
 
 `0.2989 * R + 0.5870 * G + 0.1140 * B` [^1]
+
+This outputs value in range 0 (white) - 255 (black), which is used for creating grey pixel with this value for all R, G and B colors in result image using `cmap='gray'` while saving picture. 
+
 ## Testing dataset
 We tested functions with dataset of 30 images of different sizes. Images are saved in `imgs` directory.
 
