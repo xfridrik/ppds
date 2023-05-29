@@ -5,6 +5,7 @@
 - [Branch 03 - Dining philosophers](../../tree/03)
 - [Branch 04 - Dining savages](../../tree/04)
 - [Branch 05 - CUDA grayscale transformation](../../tree/05)
+- [Branch 06 - [MPI] Parallel Floyd-Warshall 2D-block mapping](../../tree/06)
 
 
 Repository for PPDS course, FEI STU 2023
